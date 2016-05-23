@@ -99,7 +99,7 @@ for parent, dirnames, filenames in os.walk(rootdir):
         f = open(new_dir, 'w')
 
 
-        for text in l:  #同一个file中的每一句话
+        for text in l:  #同一个file中的每一句话 hehe
 
             title = re.search('.*(?=\$\{\*)', text)
 

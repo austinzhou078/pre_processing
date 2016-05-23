@@ -99,7 +99,7 @@ for parent, dirnames, filenames in os.walk(rootdir):
         f = open(new_dir, 'w')
 
 
-        for text in l:  #同一个file中的每一句话 hehe
+        for text in l:  #同一个file中的每一句话
 
             title = re.search('.*(?=\$\{\*)', text)
 
@@ -139,7 +139,7 @@ for parent, dirnames, filenames in os.walk(rootdir):
 
             best_answer = ''
 
-            for a in answers: #这里的逻辑有点复杂
+            for a in answers: #这里的逻辑有点复杂, 对于每一个答案，先判断是不是过长或者空洞，再计算分数
                 if re.search('(www\.)|(http\:\/\/)', a).__str__() != 'None':
                     temp_answer = '自己百度去吧'
                     continue
@@ -201,10 +201,6 @@ for parent, dirnames, filenames in os.walk(rootdir):
             #将当前行的信息写入到新的文件页
             f.write(title2)
             f.write('\t')
-            # f.write(title_content[0])
-            # f.write('\t')
-            # f.write(answers[0])
-            # print(best_answer)
             f.write(best_answer2)
             f.write('\n')
 

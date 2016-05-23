@@ -14,6 +14,10 @@ rootdir = "/Users/Austin/360云盘/论文/test/yahoo"
             # "那肯定是贝克汉姆咯)$||peoplelv:3||agree:0||disagree:0",
             # "那肯定是贝克汉姆咯)$||peoplelv:3||agree:0||disagree:0"]
 
+def norma(text):
+    text2 = re.sub('(\!|\~|\～|\。|\,|\-|\?|\·){2,}',' ',text)
+    return text2
+
 def score_comput(ans):
     # print ans
     peoplelv = re.search('(?<=peoplelv:)[0-9]*(?=\|\|agree)', ans).group()
@@ -38,7 +42,6 @@ def score_comput(ans):
     return agree + 0.5*disagree + 0.5*peoplelv
 
 def modify(ans):
-
     return re.search('.*(?=\)\$\|\|)', ans).group()
 
 
@@ -55,6 +58,7 @@ def modify(ans):
 #
 #     print "------------------------\n"
 
+#开始
 i = 0
 
 for parent, dirnames, filenames in os.walk(rootdir):
@@ -75,10 +79,6 @@ for parent, dirnames, filenames in os.walk(rootdir):
 
         for text in l:  #同一个file中的每一句话
 
-            # if len(text) > 4000:
-            #     continue
-
-            # print text
             title = re.search('.*(?=\$\[)', text)
             # title_content = re.findall('(?<=\$\[).*(?=\]\$\$)', text)
             answer = re.search('(?<=\]\$\$\{\$\().*(?=\}\$ [1-9])', text)
@@ -101,7 +101,8 @@ for parent, dirnames, filenames in os.walk(rootdir):
             # print time.time()
             # print "ending\n------------"
 
-            # print text
+            title = title.group()
+
             answers = answer.group()
             answers = answers.split('}$${$(')
 
@@ -112,20 +113,34 @@ for parent, dirnames, filenames in os.walk(rootdir):
             temp_score = 0.0
 
             for a in answers:
-                if len(a) > 500:
-                    break
-                temp_score = score_comput(a)
-                if temp_score > score:
+                 if re.search('(www\.)|(http\:\/\/)', a).__str__() != 'None':
+                    temp_answer = '自己百度去吧'
+                    continue
+
+                # 如果回答长度超过150，直接删掉
+                 if len(a) > 500:
+                    temp_answer = '这个解释太长了'
+                    continue
+
+                 temp_score = score_comput(a)
+                 if temp_score > score:
                     score = temp_score
                     best_answer = a
 
+            #如果全是特殊匹配情况（不是太长就是带有网址），输出特殊匹配回答
+            if best_answer == '':
+                best_answer = temp_answer
+            else:
+                best_answer = modify(best_answer)
+
+            #数据归一化,删除重复出现的(! ~ 。，-)
+            title2 = norma(title)
+            best_answer2 = norma(best_answer)
+
             #将当前行的信息写入到新的文件页
-            f.write(title.group())
+            f.write(title2)
             f.write('\t')
-            # f.write(title_content[0])
-            # f.write('\t')
-            # f.write(answers[0])
-            f.write(modify(best_answer))
+            f.write(modify(best_answer2))
             f.write('\n')
 
             # print(title[0] + ',' + title_content[0] + ',' + answers[0])

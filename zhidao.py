@@ -13,7 +13,7 @@ rootdir = "/Users/Austin/360云盘/论文/test/zhidao"
 # 端的奔腾)$||zan:0||gradeIndex:"7"||isFamous:"0"||isMaster:"0"||goodRate:"20"
 
 def norma(text):
-    text2 = re.sub('(\!|\~|\～|\。|\,|\-|\?|\·){2,}',' ',text)
+    text2 = re.sub('(\!|\！|`|\~|\～|\。|\,|\.|\-|\?|\？|\·){2,}',' ',text)
     return text2
 
 def score_comput(ans):
@@ -113,20 +113,9 @@ for parent, dirnames, filenames in os.walk(rootdir):
             #将content部分删掉
             title = re.sub("\$\[<.*\]\$", '', title)
 
-            # print "------------\nbegining"
-            # print time.time()
-
-            # print title
-            #如果没人回答的话就直接跳过
-            # if len(answer) == 0 or len(title) == 0:
-            #     continue
-
-            # if answer == '' or title == '':
-            #     continue
-
-
-            # print time.time()
-            # print "ending\n------------"
+            #如果Q中有英文，一律删掉
+            if re.search('[a-zA-Z]', title).__str__() != 'None':
+                continue
 
             #把不同答案之间区分开来
             answers = answer.group()
@@ -138,14 +127,20 @@ for parent, dirnames, filenames in os.walk(rootdir):
             temp_score = 0.0
 
             best_answer = ''
+            temp_answer = '太难回答了'
 
             for a in answers: #这里的逻辑有点复杂, 对于每一个答案，先判断是不是过长或者空洞，再计算分数
-                if re.search('(www\.)|(http\:\/\/)', a).__str__() != 'None':
-                    temp_answer = '自己百度去吧'
+
+                # 如果回答中有qq,QQ,比较长的英文,通通舍弃
+                if re.search('(qq)|(QQ)|(www)|(http)|(com)|([a-zA-Z]{4,})', modify(a)).__str__() != 'None':
                     continue
 
+                # if re.search('(www\.)|(http\:\/\/)', a).__str__() != 'None':
+                #     temp_answer = '自己百度去吧'
+                #     continue
+
                 # 如果回答长度超过150，直接删掉
-                if len(a) > 500:
+                if len(a) > 300:
                     temp_answer = '这个解释太长了'
                     continue
 
@@ -196,7 +191,6 @@ for parent, dirnames, filenames in os.walk(rootdir):
             #数据归一化,删除重复出现的(! ~ 。，-)
             title2 = norma(title)
             best_answer2 = norma(best_answer)
-            print best_answer
 
             #将当前行的信息写入到新的文件页
             f.write(title2)

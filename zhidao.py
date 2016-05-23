@@ -133,7 +133,7 @@ for parent, dirnames, filenames in os.walk(rootdir):
             answers = answers.split('}$${$(')
 
 
-            #extract the best answer
+            #extract the best answer sss
             score = -1
             temp_score = 0.0
 

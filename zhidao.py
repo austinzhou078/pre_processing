@@ -62,7 +62,7 @@ def score_comput(ans):
     return zan + 2*isFamous + 2*isMaster
 
 def modify(ans):
-    if ans == '这个解释太长了' or ans == '自己百度去吧':
+    if ans == '这个解释太长了' or ans == '太难回答了':
         return ans
     else:
         # print ans
@@ -127,12 +127,12 @@ for parent, dirnames, filenames in os.walk(rootdir):
             temp_score = 0.0
 
             best_answer = ''
-            temp_answer = '太难回答了'
+            temp_answer = '太难回答了' #有的时候所有的答案都包括很多英文，不方便回答
 
             for a in answers: #这里的逻辑有点复杂, 对于每一个答案，先判断是不是过长或者空洞，再计算分数
 
                 # 如果回答中有qq,QQ,比较长的英文,通通舍弃
-                if re.search('(qq)|(QQ)|(www)|(http)|(com)|([a-zA-Z]{4,})', modify(a)).__str__() != 'None':
+                if re.search('(qq)|(QQ)|(www)|(http)|WWW|(com)|([a-zA-Z]{5,})', modify(a)).__str__() != 'None':
                     continue
 
                 # if re.search('(www\.)|(http\:\/\/)', a).__str__() != 'None':

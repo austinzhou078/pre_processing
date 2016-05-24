@@ -15,7 +15,7 @@ rootdir = "/Users/Austin/360云盘/论文/test/yahoo"
             # "那肯定是贝克汉姆咯)$||peoplelv:3||agree:0||disagree:0"]
 
 def norma(text):
-    text2 = re.sub('(\!|\~|\～|\。|\,|\-|\?|\·){2,}',' ',text)
+    text2 = re.sub('(\!|\！|`|\~|\～|\。|\,|\.|\-|\?|\？|\·){2,}',' ',text)
     return text2
 
 def score_comput(ans):
@@ -42,7 +42,15 @@ def score_comput(ans):
     return agree + 0.5*disagree + 0.5*peoplelv
 
 def modify(ans):
-    return re.search('.*(?=\)\$\|\|)', ans).group()
+        # print ans
+
+        if ans == '这个解释太长了' or ans == '太难回答了':
+            return ans
+        else:
+            # print "\n\n"
+            # print ans
+            # print ans
+            return re.search('.*(?=\)\$\|\|)', ans).group()
 
 
 # 高端玩法，全自动化
@@ -103,22 +111,32 @@ for parent, dirnames, filenames in os.walk(rootdir):
 
             title = title.group()
 
+            #如果Q中有英文，一律删掉
+            if re.search('[a-zA-Z]', title).__str__() != 'None':
+                continue
+
             answers = answer.group()
             answers = answers.split('}$${$(')
 
-
+            # print "title is " + title
 
             #extract the best answer
             score = -1
             temp_score = 0.0
 
+            best_answer = ''
+            temp_answer = '太难回答了' #有的时候所有的答案都包括很多英文，不方便回答
+
+            # print "begin"
             for a in answers:
-                 if re.search('(www\.)|(http\:\/\/)', a).__str__() != 'None':
-                    temp_answer = '自己百度去吧'
+                 # print a
+
+                 # 如果回答中有qq,QQ,比较长的英文,通通舍弃
+                 if re.search('(qq)|(QQ)|(www)|WWW|(http)|(com)|([a-zA-Z]{5,})', modify(a)).__str__() != 'None':
                     continue
 
                 # 如果回答长度超过150，直接删掉
-                 if len(a) > 500:
+                 if len(a) > 300:
                     temp_answer = '这个解释太长了'
                     continue
 
@@ -127,6 +145,7 @@ for parent, dirnames, filenames in os.walk(rootdir):
                     score = temp_score
                     best_answer = a
 
+            # print "best_answer is :"+best_answer
             #如果全是特殊匹配情况（不是太长就是带有网址），输出特殊匹配回答
             if best_answer == '':
                 best_answer = temp_answer
@@ -140,14 +159,14 @@ for parent, dirnames, filenames in os.walk(rootdir):
             #将当前行的信息写入到新的文件页
             f.write(title2)
             f.write('\t')
-            f.write(modify(best_answer2))
+            f.write(best_answer2)
             f.write('\n')
 
             # print(title[0] + ',' + title_content[0] + ',' + answers[0])
 
 
         f.close()
-        print('\n--------------'+str(i)+'.txt'+'\n--------------')
+        # print('\n--------------'+str(i)+'.txt'+'\n--------------')
 
 # f.close()
 

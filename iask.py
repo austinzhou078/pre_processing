@@ -13,19 +13,19 @@ rootdir = "/Users/Austin/360云盘/论文/test/iask"
 # 设再过a年3*(8+a)=36+a求得a=6)$||1554541737
 # 解:设小刚现在x岁     3x=(x-8）+36     3x=x-8+36   3x-x=36-8     2x=28       x=14     14-8=6)$||1400316954}
 
+def norma(text):
+    text2 = re.sub('(\!|\！|`|\~|\～|\。|\,|\.|\-|\?|\？|\·){2,}',' ',text)
+    return text2
 
 def score_comput(ans):
+    l = len(ans)
+    score = 1/(abs(l-100.1))
 
-    ans2 = re.search('.*(?=\)\$\|)', ans).group()
-    l = len(ans2)
-    score = abs(l-50)
-
-    return (ans2, score)
+    return score
 
 #     return 1/len(ans)
-#
-# def modify(ans):
-#     return re.search('.*(?=\)\$\|\|)', ans).group()
+def modify(ans):
+    return re.search('.*(?=\)\$\|\|)', ans).group()
 
 # 高端玩法，全自动化
 # for parent,dirnames,filenames in os.walk(rootdir):
@@ -60,9 +60,6 @@ for parent, dirnames, filenames in os.walk(rootdir):
 
         for text in l:  #同一个file中的每一句话
 
-            # #如果有回答特别长，说明这个问题太宽泛了,删！
-            # if len(text) > 7000:
-            #     continue
 
             # print text
             title = re.search('.*(?=\$\{\*)', text)
@@ -74,24 +71,9 @@ for parent, dirnames, filenames in os.walk(rootdir):
 
             title = title.group()
 
-            # #将content部分删掉
-            # title = re.sub("\$\[<.*\]\$", '', title)
-
-
-            # print "------------\nbegining"
-            # print time.time()
-
-            # print title
-            #如果没人回答的话就直接跳过
-            # if len(answer) == 0 or len(title) == 0:
-            #     continue
-
-            # if answer == '' or title == '':
-            #     continue
-
-
-            # print time.time()
-            # print "ending\n------------"
+            #如果Q中有英文，一律删掉
+            if re.search('[a-zA-Z]', title).__str__() != 'None':
+                continue
 
             # print text
             answers = answer.group()
@@ -103,23 +85,47 @@ for parent, dirnames, filenames in os.walk(rootdir):
             score = -1
             temp_score = 0.0
 
+            best_answer = ''
+            temp_answer = '太难回答了' #有的时候所有的答案都包括很多英文，不方便回答
+
+            # 您好，请帮我删掉作品《钻石情人》${*$(已删除～～～～～～～～)$||1442943912}$2008-05-07 01:25:21
+            # 这样的情况~按理说要删除，最后输出太难回答了
+
+            # print "begin"
             for a in answers:
-                if len(a) > 500:
-                    break
+                 a = modify(a)
 
-                (aa, temp_score) = score_comput(a)
+                 # 如果回答中有qq,QQ,比较长的英文,通通舍弃
+                 if re.search('(qq)|(QQ)|(www)|WWW|(http)|(com)|([a-zA-Z]{5,}|'
+                              '(已修改)|(已删除)|已处理|已通过)', a).__str__() != 'None':
+                    continue
 
-                if temp_score > score:
+                 #如果回答长度超过150，直接删掉
+                 if len(a) > 300:
+                    temp_answer = '这个解释太长了'
+                    continue
+
+                 temp_score = score_comput(a)
+                 if temp_score > score:
                     score = temp_score
-                    best_answer = aa
+                    best_answer = a
+
+            #如果全是特殊匹配情况（不是太长就是带有网址），输出特殊匹配回答
+            if best_answer == '':
+                # best_answer = temp_answer
+                continue
+
+            #数据归一化,删除重复出现的(! ~ 。，-)
+            title2 = norma(title)
+            best_answer2 = norma(best_answer)
 
             #将当前行的信息写入到新的文件页
-            f.write(title)
+            f.write(title2)
             f.write('\t')
             # f.write(title_content[0])
             # f.write('\t')
             # f.write(answers[0])
-            f.write(best_answer)
+            f.write(best_answer2)
             f.write('\n')
 
             # print(title[0] + ',' + title_content[0] + ',' + answers[0])
